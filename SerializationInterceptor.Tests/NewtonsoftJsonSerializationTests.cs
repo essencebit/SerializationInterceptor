@@ -1,7 +1,9 @@
 using Newtonsoft.Json;
 using SerializationInterceptor.Tests.Attributes;
 using SerializationInterceptor.Tests.Utils;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -10,134 +12,73 @@ namespace SerializationInterceptor.Tests
     public class NewtonsoftJsonSerializationTests
     {
         [Fact]
-        public void Serialization_NewtonsoftJsonSerializerInvoked_SerializationOccursCorrectly()
+        public void Serialization_NewtonsoftJsonSerializerInvoked_SerializationDoesNotCrash()
         {
-            var obj = new Z
-            {
-                EnumProp = E.A,
-                StructProp = new S
-                {
-                    EnumerableOfStructSProp = new List<S>
-                    {
-                        new S
-                        {
-                            EnumerableOfStructSProp = new List<S>(),
-                            GenericClassCOfStructSProp = new C<S>()
-                        }
-                    },
-                    GenericClassCOfStructSProp = new C<S>
-                    {
-                        ArrayOfStructSProp = new S[]
-                        {
-                            new S
-                            {
-                                GenericClassCOfStructSProp = new C<S>
-                                {
-                                    ArrayOfStructSProp = new S[]
-                                    {
-                                    },
-                                    BombProp = new IEnumerable<C<S>[]>[0]
-                                }
-                            }
-                        },
-                        BombProp = new IEnumerable<C<S>[]>[]
-                        {
-                            new List<C<S>[]>
-                            {
-                                new C<S>[]
-                                {
-                                    new C<S>
-                                    {
-                                        ArrayOfStructSProp = new S[]
-                                        {
-                                            new S
-                                            {
-                                                GenericClassCOfStructSProp = new C<S>
-                                                {
-                                                    ArrayOfStructSProp = new S[]
-                                                    {
-                                                    },
-                                                    BombProp = new IEnumerable<C<S>[]>[0]
-                                                }
-                                            }
-                                        },
-                                        BombProp = new IEnumerable<C<S>[]>[]
-                                        {
-                                            new List<C<S>[]>
-                                            {
-                                                new C<S>[]
-                                                {
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                },
-                ClassAProp = new A
-                {
-                    GenericClassAOfAProp = new A<A>
-                    {
-                        GenericClassAOfGenericClassAOfAProp = new A<A<A>>
-                        {
-                            GenericClassAOfGenericClassAOfAProp = new A<A<A>>
-                            {
-                                ClassAProp = new A
-                                {
-                                    GenericClassAOfAProp = new A<A>
-                                    {
-                                        GenericClassAOfGenericClassAOfAProp = new A<A<A>>
-                                        {
-                                            GenericClassAOfGenericClassAOfAProp = new A<A<A>>
-                                            {
-                                                ClassAProp = new A
-                                                {
-                                                }
-                                            }
-                                        },
-                                        ClassAProp = new A
-                                        {
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        ClassAProp = new A
-                        {
-                            GenericClassAOfAProp = new A<A>
-                            {
-                                GenericClassAOfGenericClassAOfAProp = new A<A<A>>
-                                {
-                                    ClassAProp = new A
-                                    {
-                                    }
-                                },
-                                ClassAProp = new A
-                                {
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            var actual = NewtonsoftJsonSerializationInterceptor.Serialize(obj);
-            var expected = actual;
-            Assert.Equal(expected, actual);
+            var obj = GetObj();
+            NewtonsoftJsonSerializationInterceptor.Serialize(obj);
         }
 
         [Fact]
-        public async Task AsyncSerialization_NewtonsoftJsonSerializerInvoked_SerializationOccursCorrectly()
+        public async Task AsyncSerialization_NewtonsoftJsonSerializerInvoked_SerializationDoesNotCrash()
         {
-            var obj = new Z
+            var obj = GetObj();
+            await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj);
+        }
+
+        #region test data
+        private static Root GetObj()
+        {
+            var structs = new S[]
+            {
+                new S
+                {
+                    GenericClassCOfStructSProp = new C<S>
+                    {
+                        ArrayOfStructSProp = Array.Empty<S>(),
+                        BombProp = Array.Empty<IEnumerable<C<S>[][,,]>>()
+                    }
+                },
+                default,
+                new S()
+            };
+            var self = new X<X<int, float, char>, double, string>();
+            self.SelfProp = self;
+            self.FirstProp = new X<int, float, char>();
+            self.FirstProp.SelfProp = self.FirstProp;
+            var bomb = new HashSet<C<S>[][,,]>[]
+            {
+                new HashSet<C<S>[][,,]>
+                {
+                    new C<S>[][,,]
+                    {
+                        new C<S>[,,]
+                        {
+                            {
+                                {
+                                    new C<S>{},
+                                    new C<S>{}
+                                }
+                            },
+                            {
+                                {
+                                    null,
+                                    null
+                                }
+                            }
+                        },
+                        null
+                    },
+                    null
+                }
+            };
+            var obj = new Root
             {
                 EnumProp = E.A,
                 StructProp = new S
                 {
                     EnumerableOfStructSProp = new List<S>
                     {
+                        default,
                         new S
                         {
                             EnumerableOfStructSProp = new List<S>(),
@@ -146,47 +87,83 @@ namespace SerializationInterceptor.Tests
                     },
                     GenericClassCOfStructSProp = new C<S>
                     {
-                        ArrayOfStructSProp = new S[]
+                        ArrayOfStructSProp = structs,
+                        BombProp = new ISet<C<S>[][,,]>[]
                         {
-                            new S
+                            new HashSet<C<S>[][,,]>
                             {
-                                GenericClassCOfStructSProp = new C<S>
+                                new C<S>[][,,]
                                 {
-                                    ArrayOfStructSProp = new S[]
+                                    new C<S>[,,]
                                     {
-                                    },
-                                    BombProp = new IEnumerable<C<S>[]>[0]
-                                }
-                            }
-                        },
-                        BombProp = new IEnumerable<C<S>[]>[]
-                        {
-                            new List<C<S>[]>
-                            {
-                                new C<S>[]
-                                {
-                                    new C<S>
-                                    {
-                                        ArrayOfStructSProp = new S[]
                                         {
-                                            new S
                                             {
-                                                GenericClassCOfStructSProp = new C<S>
+                                                new C<S>
                                                 {
                                                     ArrayOfStructSProp = new S[]
                                                     {
+                                                        new S
+                                                        {
+                                                            GenericClassCOfStructSProp = new C<S>
+                                                            {
+                                                                ArrayOfStructSProp = Array.Empty<S>(),
+                                                                BombProp = Array.Empty<IEnumerable<C<S>[][,,]>>()
+                                                            }
+                                                        }
                                                     },
-                                                    BombProp = new IEnumerable<C<S>[]>[0]
+                                                    BombProp = new IEnumerable<C<S>[][,,]>[]
+                                                    {
+                                                        new List<C<S>[][,,]>
+                                                        {
+                                                            new C<S>[][,,]
+                                                            {
+                                                                new C<S>[,,]
+                                                                {
+                                                                    {
+                                                                        {
+                                                                            new C<S>{},
+                                                                            new C<S>{}
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    GenericClassXProp = self,
                                                 }
                                             }
-                                        },
-                                        BombProp = new IEnumerable<C<S>[]>[]
+                                        }
+                                    }
+                                }
+                            },
+                            null,
+                            new HashSet<C<S>[][,,]>
+                            {
+                                new C<S>[][,,]
+                                {
+                                    null,
+                                    new C<S>[,,]
+                                    {
                                         {
-                                            new List<C<S>[]>
                                             {
-                                                new C<S>[]
+                                                new C<S>
                                                 {
-                                                }
+                                                    ArrayOfStructSProp = new S[]
+                                                    {
+                                                        new S
+                                                        {
+                                                            GenericClassCOfStructSProp = new C<S>
+                                                            {
+                                                                ArrayOfStructSProp = Array.Empty<S>(),
+                                                                BombProp = Array.Empty<IEnumerable<C<S>[][,,]>>()
+                                                            }
+                                                        }
+                                                    },
+                                                    BombProp = bomb,
+                                                    GenericClassXProp = self,
+                                                },
+                                                null,
+                                                null
                                             }
                                         }
                                     }
@@ -239,16 +216,107 @@ namespace SerializationInterceptor.Tests
                             }
                         }
                     }
+                },
+                DictProp = new Dictionary<IEnumerable<C<int>[][,,][,,,][]>[], A<int>>
+                {
+                    {
+                        new IEnumerable<C<int>[][,,][,,,][]>[]
+                        {
+                            Enumerable.Empty<C<int>[][,,][,,,][]>()
+                        },
+                        new A<int>
+                        {
+                            GenericClassAOfGenericClassAOfAProp = new A<A<A>>()
+                        }
+                    },
+                    {
+                        Array.Empty<IEnumerable<C<int>[][,,][,,,][]>>(),
+                        null
+                    },
+                    {
+                        new List<C<int>[][,,][,,,][]>[]
+                        {
+                            new List<C<int>[][,,][,,,][]>
+                            {
+                            },
+                            null,
+                            null,
+                            new List<C<int>[][,,][,,,][]>
+                            {
+                                Array.Empty<C<int>[,,][,,,][]>(),
+                                null,
+                                new C<int>[][,,][,,,][]
+                                {
+                                    null,
+                                    new C<int>[,,][,,,][]
+                                    {
+                                        {
+                                            {
+                                                null,
+                                                new C<int>[,,,][]
+                                                {
+                                                    {
+                                                        {
+                                                            {
+                                                                new C<int>[]
+                                                                {
+                                                                    new C<int>
+                                                                    {
+                                                                        BombProp = bomb
+                                                                    },
+                                                                    null,
+                                                                    null,
+                                                                    new C<int>
+                                                                    {
+                                                                        BombProp = bomb,
+                                                                        ArrayOfStructSProp =structs
+                                                                    },
+                                                                    null,
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        {
+                                                            {
+                                                                null
+                                                            }
+                                                        }
+                                                    }
+
+                                                },
+                                                null
+                                            },
+                                            {
+                                                null,
+                                                null,
+                                                null
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        new A<int>
+                        {
+                            GenericClassAOfGenericClassAOfAProp = new A<A<A>>
+                            {
+                                GenericClassAOfGenericClassAOfAProp = new A<A<A>>()
+                            },
+                            ClassAProp = new A
+                            {
+                                GenericClassAOfAProp = new A<A>()
+                            }
+                        }
+                    }
                 }
             };
-
-            var actual = await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj);
-            var expected = actual;
-            Assert.Equal(expected, actual);
+            return obj;
         }
+        #endregion
 
         #region types
-        class Z
+        class Root
         {
             [JsonPropertyInterceptor("enum")]
             [JsonProperty("")]
@@ -261,6 +329,10 @@ namespace SerializationInterceptor.Tests
             [JsonPropertyInterceptor("class_A")]
             [JsonProperty("")]
             public A ClassAProp { get; set; }
+
+            [JsonPropertyInterceptor("dict")]
+            [JsonProperty("")]
+            public ICollection<KeyValuePair<IEnumerable<C<int>[][,,][,,,][]>[], A<int>>> DictProp { get; set; }
         }
 
         struct S
@@ -282,11 +354,11 @@ namespace SerializationInterceptor.Tests
 
             [JsonPropertyInterceptor("bomb")]
             [JsonProperty("")]
-            public IEnumerable<C<S>[]>[] BombProp { get; set; }
+            public IEnumerable<C<S>[][,,]>[] BombProp { get; set; }
 
             [JsonPropertyInterceptor("generic_class_X")]
             [JsonProperty("")]
-            public X<int, string, double> GenericClassXProp { get; set; }
+            public X<X<int, float, char>, double, string> GenericClassXProp { get; set; }
         }
 
         class A
@@ -311,7 +383,7 @@ namespace SerializationInterceptor.Tests
         {
             [JsonPropertyInterceptor("self")]
             [JsonProperty("")]
-            public X<T1, T2, T3> Self { get; set; }
+            public X<T1, T2, T3> SelfProp { get; set; }
 
             [JsonPropertyInterceptor("first")]
             [JsonProperty("")]

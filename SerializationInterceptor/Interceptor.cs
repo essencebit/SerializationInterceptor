@@ -1,10 +1,11 @@
-﻿using AutoMapper;
+﻿using SerializationInterceptor.Enums;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace SerializationInterceptor
 {
+    //TODO: document thrown exceptions
     public class Interceptor
     {
         #region serialization
@@ -65,28 +66,28 @@ namespace SerializationInterceptor
         #region sync
         public static T Deserialize<T>(string @string, Func<string, Type, object> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType<T>();
+            var objCloneType = TypeCloneFactory.CloneType<T>(Operation.Deserialization);
             var objClone = deserialization.Invoke(@string, objCloneType);
             return CloneToObject<T>(objClone, objCloneType);
         }
 
         public static object Deserialize(string @string, Type objType, Func<string, Type, object> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType(objType);
+            var objCloneType = TypeCloneFactory.CloneType(Operation.Deserialization, objType);
             var objClone = deserialization.Invoke(@string, objCloneType);
             return CloneToObject(objType, objClone, objCloneType);
         }
 
         public static T Deserialize<T>(Stream stream, Func<Stream, Type, object> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType<T>();
+            var objCloneType = TypeCloneFactory.CloneType<T>(Operation.Deserialization);
             var objClone = deserialization.Invoke(stream, objCloneType);
             return CloneToObject<T>(objClone, objCloneType);
         }
 
         public static object Deserialize(Stream stream, Type objType, Func<Stream, Type, object> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType(objType);
+            var objCloneType = TypeCloneFactory.CloneType(Operation.Deserialization, objType);
             var objClone = deserialization.Invoke(stream, objCloneType);
             return CloneToObject(objType, objClone, objCloneType);
         }
@@ -95,7 +96,7 @@ namespace SerializationInterceptor
         #region async
         public static Task<T> DeserializeAsync<T>(string @string, Func<string, Type, Task<object>> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType<T>();
+            var objCloneType = TypeCloneFactory.CloneType<T>(Operation.Deserialization);
             var objClone = deserialization.Invoke(@string, objCloneType).ConfigureAwait(false).GetAwaiter().GetResult();
             var obj = CloneToObject<T>(objClone, objCloneType);
             return Task.FromResult(obj);
@@ -103,7 +104,7 @@ namespace SerializationInterceptor
 
         public static Task<object> DeserializeAsync(string @string, Type objType, Func<string, Type, Task<object>> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType(objType);
+            var objCloneType = TypeCloneFactory.CloneType(Operation.Deserialization, objType);
             var objClone = deserialization.Invoke(@string, objCloneType).ConfigureAwait(false).GetAwaiter().GetResult();
             var obj = CloneToObject(objType, objClone, objCloneType);
             return Task.FromResult(obj);
@@ -111,7 +112,7 @@ namespace SerializationInterceptor
 
         public static Task<T> DeserializeAsync<T>(Stream stream, Func<Stream, Type, Task<object>> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType<T>();
+            var objCloneType = TypeCloneFactory.CloneType<T>(Operation.Deserialization);
             var objClone = deserialization.Invoke(stream, objCloneType).ConfigureAwait(false).GetAwaiter().GetResult();
             var obj = CloneToObject<T>(objClone, objCloneType);
             return Task.FromResult(obj);
@@ -119,7 +120,7 @@ namespace SerializationInterceptor
 
         public static Task<object> DeserializeAsync(Stream stream, Type objType, Func<Stream, Type, Task<object>> deserialization)
         {
-            var objCloneType = SerializationTypeCloneFactory.CloneType(objType);
+            var objCloneType = TypeCloneFactory.CloneType(Operation.Deserialization, objType);
             var objClone = deserialization.Invoke(stream, objCloneType).ConfigureAwait(false).GetAwaiter().GetResult();
             var obj = CloneToObject(objType, objClone, objCloneType);
             return Task.FromResult(obj);
@@ -136,10 +137,8 @@ namespace SerializationInterceptor
 
         private static void ObjectToClone(object obj, Type objType, out object objClone, out Type objCloneType)
         {
-            objCloneType = SerializationTypeCloneFactory.CloneType(objType);
-            var mapperConfig = MapperConfigFactory.CreateMapperConfig(objType, objCloneType);
-            var mapper = new Mapper(mapperConfig);
-            objClone = mapper.Map(obj, objType, objCloneType);
+            objCloneType = TypeCloneFactory.CloneType(Operation.Serialization, objType);
+            objClone = PureAutoMapper.Map(obj, objType, objCloneType);
         }
 
         private static T CloneToObject<T>(object objClone, Type objCloneType)
@@ -149,11 +148,7 @@ namespace SerializationInterceptor
         }
 
         private static object CloneToObject(Type objType, object objClone, Type objCloneType)
-        {
-            var mapperConfig = MapperConfigFactory.CreateMapperConfig(objCloneType, objType);
-            var mapper = new Mapper(mapperConfig);
-            return mapper.Map(objClone, objCloneType, objType);
-        }
+            => PureAutoMapper.Map(objClone, objCloneType, objType);
         #endregion
     }
 }

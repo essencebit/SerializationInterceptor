@@ -11,8 +11,8 @@ using System.Text;
 namespace SerializationInterceptor
 {
     /// <summary>
-    /// This class is used strictly for testing purpose. It helps to visualize the type definition, and thus makes debugging easier.
-    /// Don't bother wasting time on it.
+    /// This class is used strictly for testing purpose. It helps to visualize the type definition,
+    /// and thus makes debugging easier. Don't bother wasting time on it.
     /// </summary>
     public static class TypeDefinitionSerializer
     {
@@ -42,7 +42,10 @@ namespace SerializationInterceptor
 
         private static void ProcessGenericArgs(Type type, IDictionary<Type, string> encounteredTypes)
         {
-            type.GetGenericArguments().ToList().ForEach(x => ProcessType(x, encounteredTypes));
+            foreach (var genericArg in type.GetGenericArguments())
+            {
+                ProcessType(genericArg, encounteredTypes);
+            }
         }
 
         private static void ProcessElementType(Type type, IDictionary<Type, string> encounteredTypes)
@@ -54,7 +57,7 @@ namespace SerializationInterceptor
         {
             var typeDefinition = new StringBuilder();
             ProcessTypeAttributes(type, typeDefinition);
-            typeDefinition.AppendLine($"{GetTypeType(type)} {GetTypeName(type)}");
+            typeDefinition.AppendLine($"{GetTypeType(type)} {type.GetTypePrettyName()}");
             typeDefinition.AppendLine("{");
             if (type.IsEnum) ProcessEnum(type, typeDefinition);
             else ProcessProps(type, encounteredTypes, typeDefinition);
@@ -68,7 +71,7 @@ namespace SerializationInterceptor
             {
                 ProcessType(prop.PropertyType, encounteredTypes);
                 ProcessPropAttributes(prop, typeDefinition);
-                typeDefinition.AppendLine($"\t{GetTypeName(prop.PropertyType)} {prop.Name}");
+                typeDefinition.AppendLine($"\t{prop.PropertyType.GetTypePrettyName()} {prop.Name}");
             }
         }
 
@@ -80,18 +83,26 @@ namespace SerializationInterceptor
 
         private static void ProcessEnumGeneric<T>(StringBuilder typeDefinition) where T : Enum
         {
-            Enum.GetValues(typeof(T)).OfType<T>().ToList()
-                .ForEach(x => typeDefinition.AppendLine($"\t{Enum.GetName(typeof(T), x)} = {Convert.ChangeType(x, Enum.GetUnderlyingType(typeof(T)))}"));
+            foreach (var value in Enum.GetValues(typeof(T)).OfType<T>())
+            {
+                typeDefinition.AppendLine($"\t{Enum.GetName(typeof(T), value)} = {Convert.ChangeType(value, Enum.GetUnderlyingType(typeof(T)))}");
+            }
         }
 
         private static void ProcessTypeAttributes(Type type, StringBuilder typeDefinition)
         {
-            Utils.GetAttributeBuilderParams(type, x => true).ToList().ForEach(x => { typeDefinition.AppendLine(BuildAttributeAsString(x)); });
+            foreach (var attributeBuilderParam in Utils.GetAttributeBuilderParams(type, x => true))
+            {
+                typeDefinition.AppendLine(BuildAttributeAsString(attributeBuilderParam));
+            }
         }
 
         private static void ProcessPropAttributes(PropertyInfo prop, StringBuilder typeDefinition)
         {
-            Utils.GetAttributeBuilderParams(prop, x => true).ToList().ForEach(x => { typeDefinition.AppendLine($"\t{BuildAttributeAsString(x)}"); });
+            foreach (var attributeBuilderParam in Utils.GetAttributeBuilderParams(prop, x => true))
+            {
+                typeDefinition.AppendLine($"\t{BuildAttributeAsString(attributeBuilderParam)}");
+            }
         }
 
         private static string BuildAttributeAsString(AttributeBuilderParams attributeBuilderParams)
@@ -122,17 +133,8 @@ namespace SerializationInterceptor
             return attributeParam.ToString();
         }
 
-        private static string GetTypeName(Type type)
-        {
-            if (type.IsGenericType) return $"{type.Name.Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(x => GetTypeName(x)))}>";
-            if (type.IsArray) return $"{GetTypeName(type.GetElementType())}[]";
-            return type.Name;
-        }
+        private static string GetTypeType(Type type) => type.IsValueType ? (type.IsEnum ? "enum" : "struct") : "class";
 
-        private static string GetTypeType(Type type)
-            => type.IsValueType ? (type.IsEnum ? "enum" : "struct") : "class";
-
-        private static string TrimAttributeSuffix(this string attributeTypeName)
-            => attributeTypeName[0..^9];
+        private static string TrimAttributeSuffix(this string attributeTypeName) => attributeTypeName[0..^9];
     }
 }

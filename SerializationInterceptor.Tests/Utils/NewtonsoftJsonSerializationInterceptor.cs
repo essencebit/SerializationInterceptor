@@ -12,6 +12,7 @@ namespace SerializationInterceptor.Tests.Utils
             return Interceptor.Serialize(obj, (o, t) =>
             {
                 var serializer = new JsonSerializer();
+                serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 using var stream = new MemoryStream();
                 using var streamWriter = new StreamWriter(stream);
                 using var jsonTextWriter = new JsonTextWriter(streamWriter);
@@ -26,6 +27,7 @@ namespace SerializationInterceptor.Tests.Utils
             return Interceptor.SerializeAsync(obj, (o, t) =>
             {
                 var serializer = new JsonSerializer();
+                serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 using var stream = new MemoryStream();
                 using var streamWriter = new StreamWriter(stream);
                 using var jsonTextWriter = new JsonTextWriter(streamWriter);

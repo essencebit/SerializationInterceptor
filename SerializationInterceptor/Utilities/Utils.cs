@@ -1,16 +1,30 @@
 ﻿using SerializationInterceptor.Attributes;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace SerializationInterceptor.Utilities
 {
-    internal static class Utils
+    // todo: make internal
+    public static class Utils
     {
         public static BindingFlags PublicInstance { get; } = BindingFlags.Instance | BindingFlags.Public;
         public static BindingFlags PrivateStatic { get; } = BindingFlags.NonPublic | BindingFlags.Static;
+
+        public static bool IsEnumerable(this Type type) => type == typeof(IEnumerable) || type.GetInterfaces().Any(x => x == typeof(IEnumerable));
+        public static bool IsGenericCollection(this Type type) => (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>)) || type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>));
+        public static bool IsGenericDictionary(this Type type) => (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>)) || type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+
+        public static string GetTypePrettyName(this Type type)
+            => type.IsGenericType
+                ? type.GetGenericTypePrettyName()
+                : type.IsArray
+                    ? type.GetArrayTypePrettyName()
+                    : type.Name;
 
         public static MethodInfo GetGenericMethodDefinition(
             Type declaringType, string methodName, BindingFlags bindingFlags, Func<MethodInfo, bool> filter)
@@ -18,6 +32,11 @@ namespace SerializationInterceptor.Utilities
                     .Where(x => x.Name == methodName && x.IsGenericMethodDefinition)
                     .Where(filter)
                     .First();
+
+        public static object InvokeGenericMethod(Type declaringType, string methodName, BindingFlags bindingFlags, Type[] genericArgs, params object[] methodParams)
+            => GetGenericMethodDefinition(declaringType, methodName, bindingFlags, x => true)
+                .MakeGenericMethod(genericArgs)
+                .Invoke(null, methodParams);
 
         public static IEnumerable<AttributeBuilderParams> GetAttributeBuilderParams(Type type, Func<CustomAttributeData, bool> attributeFilter)
             => GetAttributeBuilderParams(CustomAttributeData.GetCustomAttributes(type).Where(attributeFilter));
@@ -36,32 +55,36 @@ namespace SerializationInterceptor.Utilities
                 });
 
         private static object ProcessAttributeParam(CustomAttributeTypedArgument param)
-        {
-            if (param.Value is ReadOnlyCollection<CustomAttributeTypedArgument> collection)
-                return InvokeGenericMethod(nameof(ToArray), param.ArgumentType.GetElementType(), collection.Select(x => ProcessAttributeParam(x)).ToArray());
+            => param.Value is ReadOnlyCollection<CustomAttributeTypedArgument> collection
+                ? InvokeGenericMethod(typeof(Utils), nameof(ToArray), PrivateStatic, new[] { param.ArgumentType.GetElementType() }, collection.Select(x => ProcessAttributeParam(x)).ToArray())
+                : param.ArgumentType.IsEnum
+                    ? InvokeGenericMethod(typeof(Utils), nameof(Cast), PrivateStatic, new[] { param.ArgumentType }, param.Value)
+                    : param.Value;
 
-            if (param.ArgumentType.IsEnum)
-                return InvokeGenericMethod(nameof(ToType), param.ArgumentType, param.Value);
-
-            return param.Value;
-        }
-
-        private static object InvokeGenericMethod(string methodName, Type type, object param)
-            => GetGenericMethodDefinition(typeof(Utils), methodName, PrivateStatic, x => true)
-                .MakeGenericMethod(type)
-                .Invoke(null, new[] { param });
-
-        private static T ToType<T>(object obj) => (T)obj;
+        private static T Cast<T>(object obj) => (T)obj;
 
         private static T[] ToArray<T>(params object[] elements)
         {
             var array = new T[elements.Length];
             for (int i = 0; i < elements.Length; i++)
             {
-                array[i] = ToType<T>(elements[i]);
+                array[i] = Cast<T>(elements[i]);
             }
-
             return array;
+        }
+
+        private static string GetGenericTypePrettyName(this Type type)
+            => $"{type.Name.Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(x => GetTypePrettyName(x)))}>";
+
+        private static string GetArrayTypePrettyName(this Type type)
+            => type.GetArrayTypePrettyName(currentArrayTypeSpecifier: new StringBuilder(5));
+
+        private static string GetArrayTypePrettyName(this Type type, StringBuilder currentArrayTypeSpecifier)
+        {
+            currentArrayTypeSpecifier.Append($"[{new string(',', type.GetArrayRank() - 1)}]");
+            return type.GetElementType().IsArray
+                ? GetArrayTypePrettyName(type.GetElementType(), currentArrayTypeSpecifier)
+                : type.GetElementType().GetTypePrettyName() + currentArrayTypeSpecifier.ToString();
         }
     }
 }
