@@ -27,10 +27,10 @@ namespace SerializationInterceptor
 
         private static object MapEnumerable(object srcEnumerable, Type srcType, Type destType, IDictionary<object, object> referenceMap)
         {
-            if (srcType.IsArray) return MapArray((Array)srcEnumerable, srcType, destType, referenceMap);
-            if (srcType.IsGenericDictionary()) return MapGenericDictionary(srcEnumerable, srcType, destType, referenceMap);
-            if (srcType.IsGenericCollection()) return MapGenericCollection(srcEnumerable, srcType, destType, referenceMap);
-            throw new EnumerableNotSupportedException($"Enumerable of type {srcType.GetTypePrettyName()} not supported. Allowed only arrays and types from System.Collections.Generic that implement {typeof(ICollection<>).GetTypePrettyName()} interface");
+            if (srcEnumerable.GetType().IsArray) return MapArray((Array)srcEnumerable, srcType, destType, referenceMap);
+            if (srcEnumerable.GetType().IsGenericDictionary()) return MapGenericDictionary(srcEnumerable, srcType, destType, referenceMap);
+            if (srcEnumerable.GetType().IsGenericCollection()) return MapGenericCollection(srcEnumerable, srcType, destType, referenceMap);
+            throw new EnumerableNotSupportedException($"Enumerable of type {srcEnumerable.GetType().GetTypePrettyName()} not supported. Allowed only arrays and types from System.Collections.Generic that implement {typeof(ICollection<>).GetTypePrettyName()} interface");
         }
 
         private static object MapSimpleObject(object src, Type srcType, Type destType, IDictionary<object, object> referenceMap)
@@ -45,7 +45,7 @@ namespace SerializationInterceptor
         {
             var srcElementType = srcType.IsArray ? srcType.GetElementType() : srcType.GetGenericArguments()[0];
             var destElementType = destType.IsArray ? destType.GetElementType() : destType.GetGenericArguments()[0];
-            var rank = srcType.GetArrayRank();
+            var rank = srcArray.GetType().GetArrayRank();
             var lengthForRank = new int[rank];
             for (int i = 0; i < rank; i++) lengthForRank[i] = srcArray.GetLength(i);
             var destArray = Array.CreateInstance(destElementType, lengthForRank);
@@ -70,7 +70,7 @@ namespace SerializationInterceptor
                 else
                 {
                     var srcElement = (TSrcElement)srcArray.GetValue(currentPosition);
-                    var destElement = (TDestElement)Map(srcElement, srcElement?.GetType() ?? typeof(TSrcElement), typeof(TDestElement), referenceMap);
+                    var destElement = (TDestElement)Map(srcElement, typeof(TSrcElement), typeof(TDestElement), referenceMap);
                     destArray.SetValue(destElement, currentPosition);
                 }
             }
@@ -93,8 +93,8 @@ namespace SerializationInterceptor
         {
             foreach (var srcItem in srcDictionary)
             {
-                var destItemKey = (TDestKey)Map(srcItem.Key, srcItem.Key?.GetType(), typeof(TDestKey), referenceMap);
-                var destItemValue = (TDestValue)Map(srcItem.Value, srcItem.Value?.GetType(), typeof(TDestValue), referenceMap);
+                var destItemKey = (TDestKey)Map(srcItem.Key, typeof(TSrcKey), typeof(TDestKey), referenceMap);
+                var destItemValue = (TDestValue)Map(srcItem.Value, typeof(TSrcValue), typeof(TDestValue), referenceMap);
                 destDictionary.Add(destItemKey, destItemValue);
             }
         }
@@ -114,7 +114,7 @@ namespace SerializationInterceptor
         {
             foreach (var srcItem in srcCollection)
             {
-                var destItem = (TDestItem)Map(srcItem, srcItem?.GetType(), typeof(TDestItem), referenceMap);
+                var destItem = (TDestItem)Map(srcItem, typeof(TSrcItem), typeof(TDestItem), referenceMap);
                 destCollection.Add(destItem);
             }
         }
@@ -128,7 +128,7 @@ namespace SerializationInterceptor
                 var srcPropValue = srcProp.GetValue(src);
                 var destProp = destProps.FirstOrDefault(x => x.Name == srcProp.Name);
                 if (destProp == null) continue;
-                var destPropValue = Map(srcPropValue, srcPropValue?.GetType(), destProp.PropertyType, referenceMap);
+                var destPropValue = Map(srcPropValue, srcProp.PropertyType, destProp.PropertyType, referenceMap);
                 destProp.SetValue(dest, destPropValue);
             }
         }

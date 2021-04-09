@@ -71,7 +71,7 @@ namespace SerializationInterceptor
             {
                 ProcessType(prop.PropertyType, encounteredTypes);
                 ProcessPropAttributes(prop, typeDefinition);
-                typeDefinition.AppendLine($"\t{prop.PropertyType.GetTypePrettyName()} {prop.Name}");
+                typeDefinition.AppendLine($"\t{prop.PropertyType.GetTypePrettyName()} {prop.Name} {GetPropImplementation(prop)}");
             }
         }
 
@@ -134,6 +134,8 @@ namespace SerializationInterceptor
         }
 
         private static string GetTypeType(Type type) => type.IsValueType ? (type.IsEnum ? "enum" : "struct") : "class";
+
+        private static string GetPropImplementation(PropertyInfo prop) => $"{{{(prop.CanRead ? " get;" : null)} {(prop.CanWrite ? "set; " : null)}}}";
 
         private static string TrimAttributeSuffix(this string attributeTypeName) => attributeTypeName[0..^9];
     }

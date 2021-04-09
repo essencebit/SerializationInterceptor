@@ -2,9 +2,7 @@
 using SerializationInterceptor;
 using SerializationInterceptor.Attributes;
 using SerializationInterceptor.Enums;
-using SerializationInterceptor.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Test
@@ -12,19 +10,19 @@ namespace Test
     public class Program
     {
         [JsonPropertyInterceptor(null)]
-        class Test
+        public struct Test
         {
-            public IEnumerable Prop { get; set; }
+            public int I { set { } }
+            public IDictionary<Test,int?> Prop { get; set; }
         }
 
         public static void Main(string[] args)
         {
-            var xx = typeof(IEnumerable).IsEnumerable();
             var obj = new Test
             {
-                Prop = new List<Test>
+                Prop = new Dictionary<Test,int?>
                 {
-                     new Test(), new Test() 
+                    { new Test{},null },
                 }
             };
             var objCloneType = TypeCloneFactory.CloneType(Operation.Serialization, obj.GetType());
