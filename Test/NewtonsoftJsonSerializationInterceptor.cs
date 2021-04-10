@@ -44,7 +44,7 @@ namespace Test
 
         #region Deserialization
         #region Sync
-        public static T Deserialize<T>(string @string)
+        public static T Deserialize<T>(string @string, AbstractConcreteMap abstractConcreteMap = null)
         {
             return Interceptor.Deserialize<T>(@string, (s, t) =>
             {
@@ -53,12 +53,12 @@ namespace Test
                 using var streamReader = new StreamReader(stream);
                 using var jsonTextReader = new JsonTextReader(streamReader);
                 return serializer.Deserialize(jsonTextReader, t);
-            });
+            }, abstractConcreteMap);
         }
         #endregion Sync
 
         #region Async
-        public static Task<T> DeserializeAsync<T>(string @string)
+        public static Task<T> DeserializeAsync<T>(string @string, AbstractConcreteMap abstractConcreteMap = null)
         {
             return Interceptor.DeserializeAsync<T>(@string, (s, t) =>
             {
@@ -67,7 +67,7 @@ namespace Test
                 using var streamReader = new StreamReader(stream);
                 using var jsonTextReader = new JsonTextReader(streamReader);
                 return Task.FromResult(serializer.Deserialize(jsonTextReader, t));
-            });
+            }, abstractConcreteMap);
         }
         #endregion Async
         #endregion Deserialization

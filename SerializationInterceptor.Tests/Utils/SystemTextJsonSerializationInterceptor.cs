@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SerializationInterceptor.Tests.Utils
@@ -10,43 +11,49 @@ namespace SerializationInterceptor.Tests.Utils
     {
         public static string Serialize<T>(T obj)
         {
-            return Interceptor.Serialize(obj, (o, t) =>
+            return Interceptor.InterceptSerialization(obj, (o, t) =>
             {
-                return JsonSerializer.Serialize(o, t);
+                return JsonSerializer.Serialize(o, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
             });
         }
 
         public static Task<string> SerializeAsync<T>(T obj)
         {
-            return Interceptor.SerializeAsync(obj, async (o, t) =>
+            return Interceptor.InterceptSerializationAsync(obj, async (o, t) =>
             {
                 using var stream = new MemoryStream();
-                await JsonSerializer.SerializeAsync(stream, o, t);
+                await JsonSerializer.SerializeAsync(stream, o, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
                 return Encoding.UTF8.GetString(stream.ToArray());
             });
         }
 
-        public static T Deserialize<T>(string @string)
+        public static T Deserialize<T>(string @string, AbstractConcreteMap abstractConcreteMap = null)
         {
-            return Interceptor.Deserialize<T>(@string, (s, t) =>
-            {
-                var span = new ReadOnlySpan<byte>(Encoding.UTF8.GetBytes(s));
-                return JsonSerializer.Deserialize(span, t);
-            });
+            return Interceptor.InterceptDeserialization<T>(
+                @string,
+                (s, t) =>
+                {
+                    var span = new ReadOnlySpan<byte>(Encoding.UTF8.GetBytes(s));
+                    return JsonSerializer.Deserialize(span, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
+                },
+                abstractConcreteMap);
         }
 
-        public static Task<T> DeserializeAsync<T>(string @string)
+        public static Task<T> DeserializeAsync<T>(string @string, AbstractConcreteMap abstractConcreteMap = null)
         {
-            return Interceptor.DeserializeAsync<T>(@string, async (s, t) =>
-            {
-                using var stream = new MemoryStream();
-                using var writer = new StreamWriter(stream);
-                writer.Write(s);
-                writer.Flush();
-                stream.Position = 0;
-                var obj = await JsonSerializer.DeserializeAsync(stream, t);
-                return obj;
-            });
+            return Interceptor.InterceptDeserializationAsync<T>(
+                @string,
+                async (s, t) =>
+                {
+                    using var stream = new MemoryStream();
+                    using var writer = new StreamWriter(stream);
+                    writer.Write(s);
+                    writer.Flush();
+                    stream.Position = 0;
+                    var obj = await JsonSerializer.DeserializeAsync(stream, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
+                    return obj;
+                },
+                abstractConcreteMap);
         }
     }
 }

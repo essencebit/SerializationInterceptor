@@ -25,6 +25,22 @@ namespace SerializationInterceptor.Tests
             await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj);
         }
 
+        [Fact]
+        public void Deserialization_NewtonsoftJsonSerializerInvoked_DeserializationDoesNotCrash()
+        {
+            var @string = GetString();
+            var map = GetAbstractConcreteMap();
+            NewtonsoftJsonSerializationInterceptor.Deserialize<Root>(@string, map);
+        }
+
+        [Fact]
+        public async Task AsyncDeserialization_NewtonsoftJsonSerializerInvoked_DeserializationDoesNotCrash()
+        {
+            var @string = GetString();
+            var map = GetAbstractConcreteMap();
+            await NewtonsoftJsonSerializationInterceptor.DeserializeAsync<Root>(@string, map);
+        }
+
         #region test data
         private static Root GetObj()
         {
@@ -55,8 +71,12 @@ namespace SerializationInterceptor.Tests
                         {
                             {
                                 {
-                                    new C<S>{},
-                                    new C<S>{}
+                                    new C<S>
+                                    {
+                                    },
+                                    new C<S>
+                                    {
+                                    }
                                 }
                             },
                             {
@@ -121,8 +141,38 @@ namespace SerializationInterceptor.Tests
                                                                 {
                                                                     {
                                                                         {
-                                                                            new C<S>{},
-                                                                            new C<S>{}
+                                                                            new C<S>
+                                                                            {
+                                                                            },
+                                                                            new C<S>
+                                                                            {
+                                                                                GenericAbstractClassProp = new Concrete<Abstract<S>>
+                                                                                {
+                                                                                    CharProp = 'x',
+                                                                                    NumberProp = 1,
+                                                                                    StringProp = "string1",
+                                                                                    AbstractClassGenericArgProp = new Concrete<S>
+                                                                                    {
+                                                                                        AbstractClassGenericArgProp = new S()
+                                                                                    }
+                                                                                },
+                                                                                GenericInterfaceProp = new Concrete<Abstract<Abstract<S>>>
+                                                                                {
+                                                                                    CharProp = 'y',
+                                                                                    NumberProp = 2,
+                                                                                    StringProp = "string2",
+                                                                                    InterfaceGenericArgProp = new Concrete<Abstract<S>>
+                                                                                    {
+                                                                                        CharProp = 'z',
+                                                                                        NumberProp = 3,
+                                                                                        StringProp = "string3",
+                                                                                        InterfaceGenericArgProp = new Concrete<S>
+                                                                                        {
+                                                                                            AbstractClassGenericArgProp = new S()
+                                                                                        }
+                                                                                    },
+                                                                                }
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -217,23 +267,21 @@ namespace SerializationInterceptor.Tests
                         }
                     }
                 },
-                DictProp = new Dictionary<IEnumerable<C<int>[][,,][,,,][]>[], A<int>>
+                DictProp = new Dictionary<string, IEnumerable<C<int>[][,,][,,,][]>[]>
                 {
                     {
+                        "key1",
                         new IEnumerable<C<int>[][,,][,,,][]>[]
                         {
                             Enumerable.Empty<C<int>[][,,][,,,][]>()
-                        },
-                        new A<int>
-                        {
-                            GenericClassAOfGenericClassAOfAProp = new A<A<A>>()
                         }
                     },
                     {
-                        Array.Empty<IEnumerable<C<int>[][,,][,,,][]>>(),
-                        null
+                        "key2",
+                        Array.Empty<IEnumerable<C<int>[][,,][,,,][]>>()
                     },
                     {
+                        "key3",
                         new List<C<int>[][,,][,,,][]>[]
                         {
                             new List<C<int>[][,,][,,,][]>
@@ -296,27 +344,31 @@ namespace SerializationInterceptor.Tests
                                     }
                                 }
                             }
-                        },
-                        new A<int>
-                        {
-                            GenericClassAOfGenericClassAOfAProp = new A<A<A>>
-                            {
-                                GenericClassAOfGenericClassAOfAProp = new A<A<A>>()
-                            },
-                            ClassAProp = new A
-                            {
-                                GenericClassAOfAProp = new A<A>()
-                            }
                         }
                     }
                 }
             };
             return obj;
         }
+
+        private static string GetString()
+        {
+            return "{\"enum\":1,\"struct_S\":{\"enumerable_of_struct_S\":[{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":null},{\"enumerable_of_struct_S\":[],\"generic_class_C_of_struct_S\":{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}}],\"generic_class_C_of_struct_S\":{\"array_of_struct_S\":[{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":{\"array_of_struct_S\":[],\"bomb\":[],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}},{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":null},{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":null}],\"bomb\":[[[[[[{\"array_of_struct_S\":[{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":{\"array_of_struct_S\":[],\"bomb\":[],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}}],\"bomb\":[[[[[[{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null},{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":{\"number\":49,\"char\":\"x\",\"abstract_class_generic_arg\":{\"number\":0,\"char\":\"\\u0000\",\"abstract_class_generic_arg\":{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":null}}},\"generic_interface\":{\"interface_generic_arg\":{\"number\":51,\"char\":\"z\",\"abstract_class_generic_arg\":null},\"string\":\"string2\"}}]]]]]],\"generic_class_X\":{\"first\":{\"first\":0,\"second\":0.0,\"third\":\"\\u0000\"},\"second\":0.0,\"third\":null},\"generic_abstract_class\":null,\"generic_interface\":null}]]]]],null,[[null,[[[{\"array_of_struct_S\":[{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":{\"array_of_struct_S\":[],\"bomb\":[],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}}],\"bomb\":[[[[[[{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null},{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}]],[[null,null]]],null],null]],\"generic_class_X\":{\"first\":{\"first\":0,\"second\":0.0,\"third\":\"\\u0000\"},\"second\":0.0,\"third\":null},\"generic_abstract_class\":null,\"generic_interface\":null},null,null]]]]]],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}},\"class_A\":{\"generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":null,\"class_A\":{\"generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":null,\"class_A\":{\"generic_class_A_of_A\":null}},\"class_A\":null},\"class_A\":{\"generic_class_A_of_A\":null}}}},\"class_A\":null},\"class_A\":{\"generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":{\"generic_class_A_of_generic_class_A_of_A\":null,\"class_A\":{\"generic_class_A_of_A\":null}},\"class_A\":{\"generic_class_A_of_A\":null}}}}},\"dict\":{\"key1\":[[]],\"key2\":[],\"key3\":[[],null,null,[[],null,[null,[[[null,[[[[[{\"array_of_struct_S\":null,\"bomb\":[[[[[[{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null},{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}]],[[null,null]]],null],null]],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null},null,null,{\"array_of_struct_S\":[{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":{\"array_of_struct_S\":[],\"bomb\":[],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}},{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":null},{\"enumerable_of_struct_S\":null,\"generic_class_C_of_struct_S\":null}],\"bomb\":[[[[[[{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null},{\"array_of_struct_S\":null,\"bomb\":null,\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null}]],[[null,null]]],null],null]],\"generic_class_X\":null,\"generic_abstract_class\":null,\"generic_interface\":null},null]]]],[[[null]]]],null],[null,null,null]]]]]]}}";
+        }
+
+        private static AbstractConcreteMap GetAbstractConcreteMap()
+        {
+            return new AbstractConcreteMap
+            {
+                { typeof(Abstract<Abstract<S>>), typeof(Concrete<Abstract<S>>) },
+                { typeof(Abstract<S>), typeof(Concrete<S>) },
+                { typeof(IInterface<Abstract<Abstract<S>>>), typeof(Concrete<Abstract<Abstract<S>>>) },
+            };
+        }
         #endregion
 
         #region types
-        class Root
+        private class Root
         {
             [JsonPropertyInterceptor("enum")]
             [JsonProperty("")]
@@ -332,10 +384,10 @@ namespace SerializationInterceptor.Tests
 
             [JsonPropertyInterceptor("dict")]
             [JsonProperty("")]
-            public ICollection<KeyValuePair<IEnumerable<C<int>[][,,][,,,][]>[], A<int>>> DictProp { get; set; }
+            public IDictionary<string, IEnumerable<C<int>[][,,][,,,][]>[]> DictProp { get; set; }
         }
 
-        struct S
+        private struct S
         {
             [JsonPropertyInterceptor("enumerable_of_struct_S")]
             [JsonProperty("")]
@@ -346,7 +398,7 @@ namespace SerializationInterceptor.Tests
             public C<S> GenericClassCOfStructSProp { get; set; }
         }
 
-        class C<T>
+        private class C<T>
         {
             [JsonPropertyInterceptor("array_of_struct_S")]
             [JsonProperty("")]
@@ -359,16 +411,24 @@ namespace SerializationInterceptor.Tests
             [JsonPropertyInterceptor("generic_class_X")]
             [JsonProperty("")]
             public X<X<int, float, char>, double, string> GenericClassXProp { get; set; }
+
+            [JsonPropertyInterceptor("generic_abstract_class")]
+            [JsonProperty("")]
+            public Abstract<Abstract<T>> GenericAbstractClassProp { get; set; }
+
+            [JsonPropertyInterceptor("generic_interface")]
+            [JsonProperty("")]
+            public IInterface<Abstract<Abstract<T>>> GenericInterfaceProp { get; set; }
         }
 
-        class A
+        private class A
         {
             [JsonPropertyInterceptor("generic_class_A_of_A")]
             [JsonProperty("")]
             public A<A> GenericClassAOfAProp { get; set; }
         }
 
-        class A<T>
+        private class A<T>
         {
             [JsonPropertyInterceptor("generic_class_A_of_generic_class_A_of_A")]
             [JsonProperty("")]
@@ -379,7 +439,7 @@ namespace SerializationInterceptor.Tests
             public A ClassAProp { get; set; }
         }
 
-        class X<T1, T2, T3>
+        private class X<T1, T2, T3>
         {
             [JsonPropertyInterceptor("self")]
             [JsonProperty("")]
@@ -398,11 +458,43 @@ namespace SerializationInterceptor.Tests
             public T3 ThirdProp { get; set; }
         }
 
-        enum E : int
+        private enum E : int
         {
             Default = 0,
             A = 1,
             B = 2,
+        }
+
+        private abstract class Abstract<T>
+        {
+            [JsonPropertyInterceptor("number")]
+            [JsonProperty("")]
+            public int NumberProp { get; set; }
+
+            [JsonPropertyInterceptor("char")]
+            [JsonProperty("")]
+            public char CharProp { get; set; }
+
+            [JsonPropertyInterceptor("abstract_class_generic_arg")]
+            [JsonProperty("")]
+            public T AbstractClassGenericArgProp { get; set; }
+        }
+
+        private interface IInterface<T>
+        {
+            [JsonPropertyInterceptor("interface_generic_arg")]
+            [JsonProperty("")]
+            public T InterfaceGenericArgProp { get; set; }
+
+            [JsonPropertyInterceptor("string")]
+            [JsonProperty("")]
+            public string StringProp { get; set; }
+        }
+
+        private class Concrete<T> : Abstract<T>, IInterface<T>
+        {
+            public string StringProp { get; set; }
+            public T InterfaceGenericArgProp { get; set; }
         }
         #endregion
     }

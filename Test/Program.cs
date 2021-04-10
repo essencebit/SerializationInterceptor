@@ -1,33 +1,49 @@
 ﻿using Newtonsoft.Json;
 using SerializationInterceptor;
 using SerializationInterceptor.Attributes;
-using SerializationInterceptor.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Test
 {
     public class Program
     {
-        [JsonPropertyInterceptor(null)]
-        public struct Test
+        public class Test
         {
-            public int I { set { } }
-            public IDictionary<Test,int?> Prop { get; set; }
+            [JsonProperty("_prop")]
+            public Abstract<Abstract<int>> Prop { get; set; }
+
+            [JsonProperty("_dynamic")]
+            public dynamic Dynamic { get; set; }
         }
+
+        public abstract class Abstract<T>
+        {
+            [JsonPropertyInterceptor("_number")]
+            [JsonProperty("_prop")]
+            public int Number { get; set; }
+
+            [JsonProperty("_char")]
+            public char Char { get; set; }
+
+            [JsonProperty("_x")]
+            public T X { get; set; }
+        }
+
+        public class Concrete<T> : Abstract<T>
+        {
+            [JsonProperty("_string")]
+            public string String { get; set; }
+        }
+
 
         public static void Main(string[] args)
         {
-            var obj = new Test
-            {
-                Prop = new Dictionary<Test,int?>
-                {
-                    { new Test{},null },
-                }
-            };
-            var objCloneType = TypeCloneFactory.CloneType(Operation.Serialization, obj.GetType());
-            var def = TypeDefinitionSerializer.Serialize(objCloneType);
-            var objClone = PureAutoMapper.Map(obj, obj.GetType(), objCloneType);
+            var obj = new Test { Dynamic = new object(), Prop = new Concrete<Abstract<int>> { Number = 13, String = "str", Char = 'c', X = new Concrete<int> { String = "str2", Char = 'd', Number = 14, X=7 } } };
+            var @string = NewtonsoftJsonSerializationInterceptor.Serialize(obj);
+            var abstractConcreteMap = new AbstractConcreteMap { { typeof(Abstract<Abstract<int>>), typeof(Concrete<Abstract<int>>) },{ typeof(Abstract<int>), typeof(Concrete<int>)} };
+            var x = NewtonsoftJsonSerializationInterceptor.Deserialize<Test>(@string, abstractConcreteMap);
         }
 
         private static object GetObj()
@@ -103,7 +119,8 @@ namespace Test
                                                                     }
                                                                 }
                                                             }
-                                                        }
+                                                        },
+                                                        Enumerable.Empty<C<S>[][,,]>()
                                                     },
                                                     GenericClassXProp = self,
                                                 }

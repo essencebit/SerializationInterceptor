@@ -11,8 +11,7 @@ using System.Reflection.Emit;
 
 namespace SerializationInterceptor
 {
-    // TODO: make internal & add support for interfaces and add support for derived classes
-    public static class TypeCloneFactory
+    internal static class TypeCloneFactory
     {
         public static Type CloneType<T>(Operation operation) => CloneType(operation, typeof(T));
 

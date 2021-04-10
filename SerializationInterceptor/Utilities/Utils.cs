@@ -9,15 +9,25 @@ using System.Text;
 
 namespace SerializationInterceptor.Utilities
 {
-    // todo: make internal
-    public static class Utils
+    internal static class Utils
     {
-        public static BindingFlags PublicInstance { get; } = BindingFlags.Instance | BindingFlags.Public;
+        public static BindingFlags PublicInstance { get; } = BindingFlags.Public | BindingFlags.Instance;
+        public static BindingFlags PublicStatic { get; } = BindingFlags.Public | BindingFlags.Static;
         public static BindingFlags PrivateStatic { get; } = BindingFlags.NonPublic | BindingFlags.Static;
 
         public static bool IsEnumerable(this Type type) => type == typeof(IEnumerable) || type.GetInterfaces().Any(x => x == typeof(IEnumerable));
+        public static bool IsGenericEnumerable(this Type type) => (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)) || type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         public static bool IsGenericCollection(this Type type) => (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>)) || type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>));
         public static bool IsGenericDictionary(this Type type) => (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>)) || type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+
+        public static bool IsEmptyEnumerable(this object obj)
+        {
+            if (obj == null) return false;
+            var type = obj.GetType();
+            if (!type.IsGenericEnumerable()) return false;
+            var itemType = type.GetInterfaces().First(x => x.GetGenericTypeDefinition() == typeof(IEnumerable<>)).GetGenericArguments();
+            return type == InvokeGenericMethod(typeof(Enumerable), nameof(Enumerable.Empty), PublicStatic, itemType).GetType();
+        }
 
         public static string GetTypePrettyName(this Type type)
             => type.IsGenericType

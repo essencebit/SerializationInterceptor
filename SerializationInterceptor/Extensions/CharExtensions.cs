@@ -1,6 +1,6 @@
 ﻿namespace SerializationInterceptor.Extensions
 {
-    public static class CharExtensions
+    internal static class CharExtensions
     {
         public static string Quote(this char c) => $"'{c}'";
     }

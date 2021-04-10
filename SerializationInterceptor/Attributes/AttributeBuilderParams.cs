@@ -3,7 +3,10 @@ using System.Reflection;
 
 namespace SerializationInterceptor.Attributes
 {
-    public class AttributeBuilderParams
+    /// <summary>
+    /// An instance of this class encapsulates all necessary params for building an attribute
+    /// </summary>
+    public sealed class AttributeBuilderParams
     {
         public ConstructorInfo Constructor { get; set; }
         public IEnumerable<object> ConstructorArgs { get; set; }
@@ -11,13 +14,13 @@ namespace SerializationInterceptor.Attributes
         public IEnumerable<AttributeBuilderNamedFieldParam> NamedFields { get; set; }
     }
 
-    public class AttributeBuilderNamedPropParam
+    public sealed class AttributeBuilderNamedPropParam
     {
         public PropertyInfo NamedProp { get; set; }
         public object PropValue { get; set; }
     }
 
-    public class AttributeBuilderNamedFieldParam
+    public sealed class AttributeBuilderNamedFieldParam
     {
         public FieldInfo NamedField { get; set; }
         public object FieldValue { get; set; }

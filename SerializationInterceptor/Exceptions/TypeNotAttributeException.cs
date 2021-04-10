@@ -2,9 +2,9 @@
 
 namespace SerializationInterceptor.Exceptions
 {
-    public sealed class NotAttributeException : Exception
+    public sealed class TypeNotAttributeException : Exception
     {
-        public NotAttributeException(Type type)
+        public TypeNotAttributeException(Type type)
             : base($"The type {type.FullName} is not an attribute")
         {
         }

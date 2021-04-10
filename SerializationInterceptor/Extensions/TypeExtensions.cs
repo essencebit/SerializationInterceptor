@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SerializationInterceptor.Extensions
 {
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         private static readonly IEnumerable<TypeCode> NumericTypes = new List<TypeCode>
         {

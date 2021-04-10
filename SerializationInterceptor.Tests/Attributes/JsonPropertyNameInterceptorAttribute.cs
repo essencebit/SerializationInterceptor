@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
-using SerializationInterceptor.Attributes;
+﻿using SerializationInterceptor.Attributes;
+using System.Text.Json.Serialization;
 
 namespace SerializationInterceptor.Tests.Attributes
 {
-    internal class JsonPropertyInterceptorAttribute : InterceptorAttribute
+    internal class JsonPropertyNameInterceptorAttribute : InterceptorAttribute
     {
-        public JsonPropertyInterceptorAttribute(string interceptorId)
-            : base(interceptorId, typeof(JsonPropertyAttribute))
+        public JsonPropertyNameInterceptorAttribute(string interceptorId)
+            : base(interceptorId, typeof(JsonPropertyNameAttribute))
         {
         }
 

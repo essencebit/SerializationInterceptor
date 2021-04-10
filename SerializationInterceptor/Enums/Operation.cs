@@ -1,7 +1,6 @@
 ﻿namespace SerializationInterceptor.Enums
 {
-    //TODO: make internal
-    public enum Operation
+    internal enum Operation
     {
         Serialization = 0,
         Deserialization

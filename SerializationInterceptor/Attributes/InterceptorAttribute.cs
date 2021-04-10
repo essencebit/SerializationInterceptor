@@ -3,8 +3,10 @@ using System;
 
 namespace SerializationInterceptor.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct,
-        AllowMultiple = true, Inherited = true)]
+    /// <summary>
+    /// Inherit from this abstract class in order to create an attribute interceptor
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = true)]
     public abstract class InterceptorAttribute : Attribute
     {
         internal protected string InterceptorId { get; }
@@ -15,10 +17,10 @@ namespace SerializationInterceptor.Attributes
         /// </summary>
         /// <param name="interceptorId">The id by which the interceptor can be identified</param>
         /// <param name="typeOfAttributeToIntercept">Type of the attribute to intercept</param>
-        /// <exception cref="NotAttributeException">Thrown if input type is not an attribute</exception>
+        /// <exception cref="TypeNotAttributeException">Thrown if input type is not an attribute</exception>
         public InterceptorAttribute(string interceptorId, Type typeOfAttributeToIntercept)
         {
-            if (!typeOfAttributeToIntercept.IsSubclassOf(typeof(Attribute))) throw new NotAttributeException(typeOfAttributeToIntercept);
+            if (!typeOfAttributeToIntercept.IsSubclassOf(typeof(Attribute))) throw new TypeNotAttributeException(typeOfAttributeToIntercept);
             InterceptorId = interceptorId;
             TypeOfAttributeToIntercept = typeOfAttributeToIntercept;
         }
