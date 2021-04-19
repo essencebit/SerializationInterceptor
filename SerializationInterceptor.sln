@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationInterceptor", "SerializationInterceptor\SerializationInterceptor.csproj", "{B9222180-6E97-43B9-9057-97147276C301}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{5F918EEC-DC78-4DF2-84C2-2837B6629C9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationInterceptor.Tests", "SerializationInterceptor.Tests\SerializationInterceptor.Tests.csproj", "{5C5533F0-20EC-4505-B09E-28E63EA15D78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerializationInterceptor.Tests", "SerializationInterceptor.Tests\SerializationInterceptor.Tests.csproj", "{5C5533F0-20EC-4505-B09E-28E63EA15D78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerializationInterceptor.Benchmark", "SerializationInterceptor.Benchmark\SerializationInterceptor.Benchmark.csproj", "{38F6DB24-7A1C-4123-A030-DE6883C10463}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{B9222180-6E97-43B9-9057-97147276C301}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9222180-6E97-43B9-9057-97147276C301}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9222180-6E97-43B9-9057-97147276C301}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F918EEC-DC78-4DF2-84C2-2837B6629C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F918EEC-DC78-4DF2-84C2-2837B6629C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F918EEC-DC78-4DF2-84C2-2837B6629C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F918EEC-DC78-4DF2-84C2-2837B6629C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5C5533F0-20EC-4505-B09E-28E63EA15D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5C5533F0-20EC-4505-B09E-28E63EA15D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C5533F0-20EC-4505-B09E-28E63EA15D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C5533F0-20EC-4505-B09E-28E63EA15D78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38F6DB24-7A1C-4123-A030-DE6883C10463}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38F6DB24-7A1C-4123-A030-DE6883C10463}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38F6DB24-7A1C-4123-A030-DE6883C10463}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38F6DB24-7A1C-4123-A030-DE6883C10463}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

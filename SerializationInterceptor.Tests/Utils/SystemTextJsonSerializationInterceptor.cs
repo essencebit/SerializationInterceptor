@@ -51,8 +51,7 @@ namespace SerializationInterceptor.Tests.Utils
                 @string,
                 (s, t) =>
                 {
-                    var span = new ReadOnlySpan<byte>(Encoding.UTF8.GetBytes(s));
-                    return JsonSerializer.Deserialize(span, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
+                    return JsonSerializer.Deserialize(s, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
                 },
                 abstractConcreteMap);
         }
@@ -64,8 +63,7 @@ namespace SerializationInterceptor.Tests.Utils
                 objType,
                 (s, t) =>
                 {
-                    var span = new ReadOnlySpan<byte>(Encoding.UTF8.GetBytes(s));
-                    return JsonSerializer.Deserialize(span, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
+                    return JsonSerializer.Deserialize(s, t, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
                 },
                 abstractConcreteMap);
         }

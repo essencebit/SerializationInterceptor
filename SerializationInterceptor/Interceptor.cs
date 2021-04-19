@@ -7,9 +7,11 @@ namespace SerializationInterceptor
 {
     /// <summary>
     /// Methods of this class can be used to intercept attribute params during serialization/deserialization process.
+    /// IMPORTANT: Use this tool when no other option left. Avoid using it, as it drastically hits the performance due to heavy use of reflection behind the scene.
     /// LIMITATIONS:
+    /// - Fields not supported. Only public non-static props are serialized/deserialized;
+    /// - Root type and types of the props must be public(not declared in any non-public types either) and have a default parameterless constructor;
     /// - Only params of type and property attributes can be intercepted;
-    /// - Fields not supported. Only props are serialized/deserialized;
     /// - Not all enumerables supported. Allowed only arrays of any number of dimensions supported by CLR and types from System.Collections.Generic that implement generic ICollection interface;
     /// - Inheritance supported partially. If you have a prop of type X and assign to that prop a value of type Y and Y is a subclass of X, then only props of type X will be serialized/deserialized, those of type Y which are not in X will be ignored;
     /// </summary>
