@@ -16,6 +16,7 @@ namespace SerializationInterceptor.Tests
         {
             var obj = GetObj();
             SystemTextJsonSerializationInterceptor.Serialize(obj);
+            SystemTextJsonSerializationInterceptor.Serialize(obj, obj.GetType());
         }
 
         [Fact]
@@ -23,6 +24,7 @@ namespace SerializationInterceptor.Tests
         {
             var obj = GetObj();
             await SystemTextJsonSerializationInterceptor.SerializeAsync(obj);
+            await SystemTextJsonSerializationInterceptor.SerializeAsync(obj, obj.GetType());
         }
 
         [Fact]
@@ -31,6 +33,7 @@ namespace SerializationInterceptor.Tests
             var @string = GetString();
             var map = GetAbstractConcreteMap();
             SystemTextJsonSerializationInterceptor.Deserialize<Root>(@string, map);
+            SystemTextJsonSerializationInterceptor.Deserialize(@string, typeof(Root), map);
         }
 
         [Fact]
@@ -39,6 +42,7 @@ namespace SerializationInterceptor.Tests
             var @string = GetString();
             var map = GetAbstractConcreteMap();
             await SystemTextJsonSerializationInterceptor.DeserializeAsync<Root>(@string, map);
+            await SystemTextJsonSerializationInterceptor.DeserializeAsync(@string, typeof(Root), map);
         }
 
         #region test data
@@ -296,8 +300,8 @@ namespace SerializationInterceptor.Tests
                                                 null,
                                             },
                                             new C<int>[]
-                                            {   
-                                                null     
+                                            {
+                                                null
                                             }
                                         },
                                         null,

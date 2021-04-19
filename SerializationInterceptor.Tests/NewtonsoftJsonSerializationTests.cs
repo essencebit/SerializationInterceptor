@@ -3,7 +3,9 @@ using SerializationInterceptor.Tests.Attributes;
 using SerializationInterceptor.Tests.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -16,6 +18,9 @@ namespace SerializationInterceptor.Tests
         {
             var obj = GetObj();
             NewtonsoftJsonSerializationInterceptor.Serialize(obj);
+            NewtonsoftJsonSerializationInterceptor.Serialize(obj, obj.GetType());
+            NewtonsoftJsonSerializationInterceptor.Serialize(obj, new MemoryStream());
+            NewtonsoftJsonSerializationInterceptor.Serialize(obj, obj.GetType(), new MemoryStream());
         }
 
         [Fact]
@@ -23,6 +28,9 @@ namespace SerializationInterceptor.Tests
         {
             var obj = GetObj();
             await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj);
+            await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj, obj.GetType());
+            await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj, new MemoryStream());
+            await NewtonsoftJsonSerializationInterceptor.SerializeAsync(obj, obj.GetType(), new MemoryStream());
         }
 
         [Fact]
@@ -31,6 +39,9 @@ namespace SerializationInterceptor.Tests
             var @string = GetString();
             var map = GetAbstractConcreteMap();
             NewtonsoftJsonSerializationInterceptor.Deserialize<Root>(@string, map);
+            NewtonsoftJsonSerializationInterceptor.Deserialize(@string, typeof(Root), map);
+            NewtonsoftJsonSerializationInterceptor.Deserialize<Root>(new MemoryStream(Encoding.UTF8.GetBytes(@string)), map);
+            NewtonsoftJsonSerializationInterceptor.Deserialize(new MemoryStream(Encoding.UTF8.GetBytes(@string)), typeof(Root), map);
         }
 
         [Fact]
@@ -39,6 +50,9 @@ namespace SerializationInterceptor.Tests
             var @string = GetString();
             var map = GetAbstractConcreteMap();
             await NewtonsoftJsonSerializationInterceptor.DeserializeAsync<Root>(@string, map);
+            await NewtonsoftJsonSerializationInterceptor.DeserializeAsync(@string, typeof(Root), map);
+            await NewtonsoftJsonSerializationInterceptor.DeserializeAsync<Root>(new MemoryStream(Encoding.UTF8.GetBytes(@string)), map);
+            await NewtonsoftJsonSerializationInterceptor.DeserializeAsync(new MemoryStream(Encoding.UTF8.GetBytes(@string)), typeof(Root), map);
         }
 
         #region test data
