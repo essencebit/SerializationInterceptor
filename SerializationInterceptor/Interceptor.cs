@@ -7,6 +7,7 @@ namespace SerializationInterceptor
 {
     /// <summary>
     /// Methods of this class can be used to intercept attribute param values during serialization/deserialization process.
+    /// NOTES: It's thread safe.
     /// IMPORTANT: Use this tool when no other option left. Avoid using it, as it drastically hits the performance due to heavy use of reflection behind the scene.
     /// LIMITATIONS:
     /// - Fields not supported. Only public non-static props are serialized/deserialized;

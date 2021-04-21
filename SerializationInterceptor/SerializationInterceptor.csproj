@@ -6,14 +6,16 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/Dorin-Mocan/SerializationInterceptor</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Dorin-Mocan/SerializationInterceptor/wiki</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Dorin-Mocan/SerializationInterceptor</RepositoryUrl>
     <PackageTags>serialization, deserialization, interceptor, newtonsoft.json, system.text.json, attribute, serializer, deserializer</PackageTags>
     <SignAssembly>false</SignAssembly>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <Company />
+    <Company>null</Company>
     <Authors>Dorin Mocan</Authors>
-    <Description>This package can be used to intercept attribute param values during serialization/deserialization process. IMPORTANT: Use this tool when no other option left. Avoid using it, as it drastically hits the performance due to heavy use of reflection behind the scene.
+    <Description>This package can be used to intercept attribute param values during serialization/deserialization process.
+NOTES: It's thread safe.
+IMPORTANT: Use this tool when no other option left. Avoid using it, as it drastically hits the performance due to heavy use of reflection behind the scene.
 LIMITATIONS:
 - Fields not supported. Only public non-static props are serialized/deserialized;
 - Root type and types of the props must be public(not declared in any non-public types either) and have a default parameterless constructor;
@@ -22,7 +24,7 @@ LIMITATIONS:
 - Inheritance supported partially. If you have a prop of type X and assign to that prop a value of type Y and Y is a subclass of X, then only props of type X will be serialized/deserialized, those of type Y which are not in X will be ignored;</Description>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Version>1.0.2</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
