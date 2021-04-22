@@ -30,7 +30,8 @@ namespace SerializationInterceptor.Attributes
         /// Return same params if alteration not needed. Hint: use InterceptorId property inside this method to identify the currently running interceptor.
         /// </summary>
         /// <param name="originalAttributeBuilderParams">Original params used for building the intercepted attribute</param>
+        /// <param name="context">Serialization/deserialization context</param>
         /// <returns>Altered params used for building the intercepted attribute anew</returns>
-        internal protected abstract AttributeBuilderParams Intercept(AttributeBuilderParams originalAttributeBuilderParams);
+        internal protected abstract AttributeBuilderParams Intercept(AttributeBuilderParams originalAttributeBuilderParams, object context);
     }
 }

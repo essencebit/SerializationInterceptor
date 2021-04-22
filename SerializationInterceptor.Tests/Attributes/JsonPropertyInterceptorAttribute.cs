@@ -10,7 +10,7 @@ namespace SerializationInterceptor.Tests.Attributes
         {
         }
 
-        protected override AttributeBuilderParams Intercept(AttributeBuilderParams originalAttributeBuilderParams)
+        protected override AttributeBuilderParams Intercept(AttributeBuilderParams originalAttributeBuilderParams, object context)
         {
             originalAttributeBuilderParams.ConstructorArgs = new[] { InterceptorId };
             return originalAttributeBuilderParams;

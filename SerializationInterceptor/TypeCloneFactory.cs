@@ -13,15 +13,15 @@ namespace SerializationInterceptor
 {
     internal static class TypeCloneFactory
     {
-        public static Type CloneType<T>(Operation operation) => CloneType(operation, typeof(T));
+        public static Type CloneType<T>(Operation operation, object context) => CloneType(operation, typeof(T), context);
 
-        public static Type CloneType(Operation operation, Type type)
+        public static Type CloneType(Operation operation, Type type, object context)
         {
             var typesThatMustBeCloned = GetTypesThatMustBeCloned(operation, type);
             if (!TypeMustBeCloned(type, typesThatMustBeCloned)) return type;
             var moduleBuilder = CreateModule(type);
             var typesMap = new Dictionary<Type, Type>();
-            return CloneType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
+            return CloneType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
         }
 
         private static ISet<Type> GetTypesThatMustBeCloned(Operation operation, Type type)
@@ -98,82 +98,82 @@ namespace SerializationInterceptor
             return assemblyBuilder.DefineDynamicModule(BuildModuleName(assemblyName));
         }
 
-        private static Type CloneType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
+        private static Type CloneType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
         {
             if (TypeCloned(type, typesMap)) return typesMap[type];
-            if (type.IsGenericType && !type.IsGenericTypeDefinition) return CloneGenericType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
-            if (type.IsGenericTypeDefinition) return CloneGenericTypeDefinition(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
-            if (type.IsArray) return CloneArrayType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
-            return CloneSimpleType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
+            if (type.IsGenericType && !type.IsGenericTypeDefinition) return CloneGenericType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
+            if (type.IsGenericTypeDefinition) return CloneGenericTypeDefinition(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
+            if (type.IsArray) return CloneArrayType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
+            return CloneSimpleType(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
         }
 
-        private static Type CloneSimpleType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
+        private static Type CloneSimpleType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
         {
             var typeBuilder = moduleBuilder.DefineType(BuildTypeName(type), TypeAttributes.Public, GetBaseType(type));
             typesMap[type] = typeBuilder;
-            SetTypeAttributes(typeBuilder, type);
+            SetTypeAttributes(typeBuilder, type, context);
             foreach (var prop in GetProps(operation, type))
             {
-                CloneProp(operation, moduleBuilder, typeBuilder, prop, typesThatMustBeCloned, typesMap);
+                CloneProp(operation, moduleBuilder, typeBuilder, prop, typesThatMustBeCloned, typesMap, context);
             }
             var typeClone = typeBuilder.CreateType();
             typesMap[type] = typeClone;
             return typeClone;
         }
 
-        private static Type CloneGenericType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
+        private static Type CloneGenericType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
         {
             var genericTypeDefinition = type.GetGenericTypeDefinition();
             Type genericTypeClone;
             if (TypeMustBeCloned(genericTypeDefinition, typesThatMustBeCloned))
             {
-                var genericTypeDefinitionClone = CloneType(operation, moduleBuilder, genericTypeDefinition, typesThatMustBeCloned, typesMap);
-                var genericTypeArgs = CloneGenericArgs(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
+                var genericTypeDefinitionClone = CloneType(operation, moduleBuilder, genericTypeDefinition, typesThatMustBeCloned, typesMap, context);
+                var genericTypeArgs = CloneGenericArgs(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
                 genericTypeClone = genericTypeDefinitionClone.MakeGenericType(genericTypeArgs.ToArray());
             }
             else
             {
-                var genericTypeArgs = CloneGenericArgs(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap);
+                var genericTypeArgs = CloneGenericArgs(operation, moduleBuilder, type, typesThatMustBeCloned, typesMap, context);
                 genericTypeClone = genericTypeDefinition.MakeGenericType(genericTypeArgs.ToArray());
             }
             typesMap[type] = genericTypeClone;
             return genericTypeClone;
         }
 
-        private static IEnumerable<Type> CloneGenericArgs(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
-            => type.GetGenericArguments().Select(x => TypeMustBeCloned(x, typesThatMustBeCloned) ? CloneType(operation, moduleBuilder, x, typesThatMustBeCloned, typesMap) : x);
+        private static IEnumerable<Type> CloneGenericArgs(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
+            => type.GetGenericArguments().Select(x => TypeMustBeCloned(x, typesThatMustBeCloned) ? CloneType(operation, moduleBuilder, x, typesThatMustBeCloned, typesMap, context) : x);
 
-        private static Type CloneGenericTypeDefinition(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
+        private static Type CloneGenericTypeDefinition(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
         {
             var typeBuilder = moduleBuilder.DefineType(BuildGenericTypeName(type), TypeAttributes.Public, GetBaseType(type));
             typesMap[type] = typeBuilder;
-            SetTypeAttributes(typeBuilder, type);
+            SetTypeAttributes(typeBuilder, type, context);
             typeBuilder.DefineGenericParameters(type.GetGenericArguments().Select(x => x.Name).ToArray());
             foreach (var prop in GetProps(operation, type))
             {
-                CloneProp(operation, moduleBuilder, typeBuilder, prop, typesThatMustBeCloned, typesMap);
+                CloneProp(operation, moduleBuilder, typeBuilder, prop, typesThatMustBeCloned, typesMap, context);
             }
             var genericTypeDefinitionClone = typeBuilder.CreateType();
             typesMap[type] = genericTypeDefinitionClone;
             return genericTypeDefinitionClone;
         }
 
-        private static Type CloneArrayType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
+        private static Type CloneArrayType(Operation operation, ModuleBuilder moduleBuilder, Type type, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
         {
-            var elementType = CloneType(operation, moduleBuilder, type.GetElementType(), typesThatMustBeCloned, typesMap);
+            var elementType = CloneType(operation, moduleBuilder, type.GetElementType(), typesThatMustBeCloned, typesMap, context);
             var rank = type.GetArrayRank();
             var arrayTypeClone = rank > 1 ? elementType.MakeArrayType(rank) : elementType.MakeArrayType();
             typesMap[type] = arrayTypeClone;
             return arrayTypeClone;
         }
 
-        private static void CloneProp(Operation operation, ModuleBuilder moduleBuilder, TypeBuilder typeBuilder, PropertyInfo prop, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap)
+        private static void CloneProp(Operation operation, ModuleBuilder moduleBuilder, TypeBuilder typeBuilder, PropertyInfo prop, ISet<Type> typesThatMustBeCloned, IDictionary<Type, Type> typesMap, object context)
         {
-            var propType = TypeMustBeCloned(prop.PropertyType, typesThatMustBeCloned) ? CloneType(operation, moduleBuilder, prop.PropertyType, typesThatMustBeCloned, typesMap) : prop.PropertyType;
+            var propType = TypeMustBeCloned(prop.PropertyType, typesThatMustBeCloned) ? CloneType(operation, moduleBuilder, prop.PropertyType, typesThatMustBeCloned, typesMap, context) : prop.PropertyType;
             var propBuilder = typeBuilder.DefineProperty(prop.Name, PropertyAttributes.None, CallingConventions.Any, propType, null);
             var fieldBuilder = typeBuilder.DefineField(BuildFieldName(prop), propType, FieldAttributes.Private);
             SetGetterAndSetter(typeBuilder, prop, propType, propBuilder, fieldBuilder);
-            SetPropAttributes(propBuilder, prop);
+            SetPropAttributes(propBuilder, prop, context);
         }
 
         private static void SetGetterAndSetter(TypeBuilder typeBuilder, PropertyInfo prop, Type propType, PropertyBuilder propBuilder, FieldBuilder fieldBuilder)
@@ -194,22 +194,22 @@ namespace SerializationInterceptor
             propBuilder.SetSetMethod(setterBuilder);
         }
 
-        private static void SetTypeAttributes(TypeBuilder typeBuilder, Type type)
+        private static void SetTypeAttributes(TypeBuilder typeBuilder, Type type, object context)
         {
             var interceptors = FilterInterceptors(type.GetCustomAttributes());
             foreach (var attributeBuilderParam in Utils.GetAttributeBuilderParams(type, x => !x.AttributeType.IsSubclassOf(typeof(InterceptorAttribute))))
             {
-                var possiblyInterceptedAttributeBuilderParam = TryInterceptAttributeBuilderParams(attributeBuilderParam, interceptors);
+                var possiblyInterceptedAttributeBuilderParam = TryInterceptAttributeBuilderParams(attributeBuilderParam, interceptors, context);
                 typeBuilder.SetCustomAttribute(CreateAttributeBuilder(possiblyInterceptedAttributeBuilderParam));
             }
         }
 
-        private static void SetPropAttributes(PropertyBuilder propBuilder, PropertyInfo prop)
+        private static void SetPropAttributes(PropertyBuilder propBuilder, PropertyInfo prop, object context)
         {
             var interceptors = FilterInterceptors(prop.GetCustomAttributes());
             foreach (var attributeBuilderParam in Utils.GetAttributeBuilderParams(prop, x => !x.AttributeType.IsSubclassOf(typeof(InterceptorAttribute))))
             {
-                var possiblyInterceptedAttributeBuilderParam = TryInterceptAttributeBuilderParams(attributeBuilderParam, interceptors);
+                var possiblyInterceptedAttributeBuilderParam = TryInterceptAttributeBuilderParams(attributeBuilderParam, interceptors, context);
                 propBuilder.SetCustomAttribute(CreateAttributeBuilder(possiblyInterceptedAttributeBuilderParam));
             }
         }
@@ -217,10 +217,10 @@ namespace SerializationInterceptor
         private static IEnumerable<InterceptorAttribute> FilterInterceptors(IEnumerable<Attribute> attributes)
             => attributes.Where(x => IsInterceptor(x)).Select(x => (InterceptorAttribute)x);
 
-        private static AttributeBuilderParams TryInterceptAttributeBuilderParams(AttributeBuilderParams attributeBuilderParams, IEnumerable<InterceptorAttribute> interceptors)
+        private static AttributeBuilderParams TryInterceptAttributeBuilderParams(AttributeBuilderParams attributeBuilderParams, IEnumerable<InterceptorAttribute> interceptors, object context)
         {
             var interceptor = interceptors.FirstOrDefault(i => i.TypeOfAttributeToIntercept == attributeBuilderParams.Constructor.DeclaringType);
-            if (interceptor != null) attributeBuilderParams = interceptor.Intercept(attributeBuilderParams);
+            if (interceptor != null) attributeBuilderParams = interceptor.Intercept(attributeBuilderParams, context);
             return attributeBuilderParams;
         }
 

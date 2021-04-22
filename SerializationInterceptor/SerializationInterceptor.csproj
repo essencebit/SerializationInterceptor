@@ -19,12 +19,12 @@ IMPORTANT: Use this tool when no other option left. Avoid using it, as it drasti
 LIMITATIONS:
 - Fields not supported. Only public non-static props are serialized/deserialized;
 - Root type and types of the props must be public(not declared in any non-public types either) and have a default parameterless constructor;
-- Only params of type and property attributes can be intercepted;
+- Only param values of type and property attributes can be intercepted;
 - Not all enumerables supported. Allowed only arrays of any number of dimensions supported by CLR and types from System.Collections.Generic that implement generic ICollection interface;
 - Inheritance supported partially. If you have a prop of type X and assign to that prop a value of type Y and Y is a subclass of X, then only props of type X will be serialized/deserialized, those of type Y which are not in X will be ignored;</Description>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>1.0.4</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
