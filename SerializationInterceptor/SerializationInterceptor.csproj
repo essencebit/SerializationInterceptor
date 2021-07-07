@@ -8,10 +8,10 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/Dorin-Mocan/SerializationInterceptor/wiki</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Dorin-Mocan/SerializationInterceptor</RepositoryUrl>
-    <PackageTags>serialization, deserialization, interceptor, newtonsoft.json, system.text.json, attribute, serializer, deserializer</PackageTags>
+    <PackageTags>serialization, deserialization, interceptor, intercept, newtonsoft.json, newtonsoft, json, system.text.json, attribute, serializer, deserializer, dynamic, data, contract, model, dto, property, param, name, value, xml, flexible, override, extension, module</PackageTags>
     <SignAssembly>false</SignAssembly>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <Company>null</Company>
+    <Company></Company>
     <Authors>Dorin Mocan</Authors>
     <Description>This package can be used to intercept attribute param values during serialization/deserialization process.
 NOTES: It's thread safe.
@@ -22,9 +22,9 @@ LIMITATIONS:
 - Only param values of type and property attributes can be intercepted;
 - Not all enumerables supported. Allowed only arrays of any number of dimensions supported by CLR and types from System.Collections.Generic that implement generic ICollection interface;
 - Inheritance supported partially. If you have a prop of type X and assign to that prop a value of type Y and Y is a subclass of X, then only props of type X will be serialized/deserialized, those of type Y which are not in X will be ignored;</Description>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
-    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <FileVersion>2.0.1.0</FileVersion>
+    <Version>2.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
