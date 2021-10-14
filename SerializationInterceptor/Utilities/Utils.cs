@@ -66,7 +66,7 @@ namespace SerializationInterceptor.Utilities
 
         private static object ProcessAttributeParam(CustomAttributeTypedArgument param)
             => param.Value is ReadOnlyCollection<CustomAttributeTypedArgument> collection
-                ? InvokeGenericMethod(typeof(Utils), nameof(ToArray), PrivateStatic, new[] { param.ArgumentType.GetElementType() }, collection.Select(x => ProcessAttributeParam(x)).ToArray())
+                ? InvokeGenericMethod(typeof(Utils), nameof(ToArray), PrivateStatic, new[] { param.ArgumentType.GetElementType() }, new[] { collection.Select(x => ProcessAttributeParam(x)).ToArray() })
                 : param.ArgumentType.IsEnum
                     ? InvokeGenericMethod(typeof(Utils), nameof(Cast), PrivateStatic, new[] { param.ArgumentType }, param.Value)
                     : param.Value;

@@ -22,10 +22,11 @@ LIMITATIONS:
 - Only param values of type and property attributes can be intercepted;
 - Not all enumerables supported. Allowed only arrays of any number of dimensions supported by CLR and types from System.Collections.Generic that implement generic ICollection interface;
 - Inheritance supported partially. If you have a prop of type X and assign to that prop a value of type Y and Y is a subclass of X, then only props of type X will be serialized/deserialized, those of type Y which are not in X will be ignored;</Description>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
-    <Version>2.0.1</Version>
+    <AssemblyVersion>2.0.2.0</AssemblyVersion>
+    <FileVersion>2.0.2.0</FileVersion>
+    <Version>2.0.2</Version>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReleaseNotes>Bugfix: When passing an array as attribute parameter, the interceptor handles the array correctly</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
