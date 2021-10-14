@@ -1,12 +1,13 @@
-﻿using System;
+﻿using SerializationInterceptor.Enums;
+using System;
 
 namespace SerializationInterceptor.Exceptions
 {
-    public sealed class OperationNotSupportedException : Exception
-    {
-        public OperationNotSupportedException(string message)
-            : base(message)
-        {
-        }
-    }
+	public sealed class OperationNotSupportedException : Exception
+	{
+		internal OperationNotSupportedException(Operation operation)
+			: base($"Operation {operation} not supported")
+		{
+		}
+	}
 }

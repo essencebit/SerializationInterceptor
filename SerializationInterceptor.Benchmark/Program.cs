@@ -7,7 +7,9 @@ namespace SerializationInterceptor.Benchmark
         public static void Main(string[] args)
         {
             WarmUp();
+            GC.Collect();
             NewtonsoftJsonBenchmark.DoBenchmark();
+            GC.Collect();
             SystemTextJsonBenchmark.DoBenchmark();
             Console.ReadKey();
         }

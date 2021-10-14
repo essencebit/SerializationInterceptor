@@ -1,19 +1,19 @@
 ﻿using Newtonsoft.Json;
 using SerializationInterceptor.Attributes;
+using System.Linq;
 
 namespace SerializationInterceptor.Benchmark.Attributes
 {
-    internal class JsonPropertyInterceptorAttribute : InterceptorAttribute
-    {
-        public JsonPropertyInterceptorAttribute(string interceptorId)
-            : base(interceptorId, typeof(JsonPropertyAttribute))
-        {
-        }
+	internal class JsonPropertyInterceptorAttribute : InterceptorAttribute
+	{
+		public JsonPropertyInterceptorAttribute(string interceptorId)
+			: base(interceptorId, typeof(JsonPropertyAttribute))
+		{
+		}
 
-        protected override AttributeBuilderParams Intercept(AttributeBuilderParams originalAttributeBuilderParams, object context)
-        {
-            originalAttributeBuilderParams.ConstructorArgs = new[] { InterceptorId };
-            return originalAttributeBuilderParams;
-        }
-    }
+		protected override void Intercept(in AttributeParams attributeBuilderParams, object context)
+		{
+			attributeBuilderParams.ConstructorArgs.First().ArgValue = InterceptorId;
+		}
+	}
 }

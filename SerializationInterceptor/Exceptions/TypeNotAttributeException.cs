@@ -1,12 +1,13 @@
-﻿using System;
+﻿using SerializationInterceptor.Utilities;
+using System;
 
 namespace SerializationInterceptor.Exceptions
 {
-    public sealed class TypeNotAttributeException : Exception
-    {
-        public TypeNotAttributeException(Type type)
-            : base($"The type {type.FullName} is not an attribute")
-        {
-        }
-    }
+	public sealed class TypeNotAttributeException : Exception
+	{
+		internal TypeNotAttributeException(Type type)
+			: base($"Type {type.GetTypePrettyName()} is not an attribute")
+		{
+		}
+	}
 }
