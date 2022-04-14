@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -11,7 +11,7 @@
     <PackageTags>serialization, deserialization, interceptor, intercept, newtonsoft.json, newtonsoft, json, system.text.json, attribute, serializer, deserializer, dynamic, data, contract, model, dto, property, param, name, value, xml, flexible, override, extension, module</PackageTags>
     <SignAssembly>false</SignAssembly>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <Company></Company>
+    <Company>Essencebit</Company>
     <Authors>Dorin Mocan</Authors>
     <Description>This package can be used to intercept attribute param values during serialization/deserialization process.
 NOTES: It's thread safe.
@@ -27,6 +27,8 @@ LIMITATIONS:
     <Version>2.0.2</Version>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageReleaseNotes>Bugfix: When passing an array as attribute parameter, the interceptor handles the array correctly</PackageReleaseNotes>
+    <PackageIcon>Logo.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -34,7 +36,11 @@ LIMITATIONS:
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\SignalRSwaggerGen\LICENSE.md">
+    <None Include="..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\Logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
