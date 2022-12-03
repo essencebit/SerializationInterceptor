@@ -78,7 +78,7 @@ namespace SerializationInterceptor.Utilities
             var array = new T[elements.Length];
             for (int i = 0; i < elements.Length; i++)
             {
-                array[i] = Cast<T>(elements[i]);
+                array[i] = (T)elements[i];
             }
             return array;
         }
