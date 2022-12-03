@@ -1,1 +1,1 @@
-Go to wiki: https://github.com/Dorin-Mocan/SerializationInterceptor/wiki
+Go to wiki: https://github.com/essencebit/SerializationInterceptor/wiki
