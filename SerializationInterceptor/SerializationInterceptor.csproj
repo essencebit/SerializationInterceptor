@@ -6,9 +6,9 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/Dorin-Mocan/SerializationInterceptor/wiki</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Dorin-Mocan/SerializationInterceptor</RepositoryUrl>
-    <PackageTags>serialization, deserialization, interceptor, intercept, newtonsoft.json, newtonsoft, json, system.text.json, attribute, serializer, deserializer, dynamic, data, contract, model, dto, property, param, name, value, xml, flexible, override, extension, module, cache, caching, runtime, modify</PackageTags>
+    <PackageProjectUrl>https://github.com/essencebit/SerializationInterceptor/wiki</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/essencebit/SerializationInterceptor</RepositoryUrl>
+    <PackageTags>serialization, deserialization, interceptor, intercept, newtonsoft.json, newtonsoft, json, system.text.json, attribute, serializer, deserializer, dynamic, data, contract, model, dto, property, param, name, value, xml, flexible, override, extension, module, cache, caching, runtime, modify, essencebit</PackageTags>
     <SignAssembly>false</SignAssembly>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <Company>Essencebit</Company>
@@ -22,12 +22,12 @@ LIMITATIONS:
 - Only param values of attributes attached to types and properties can be intercepted;
 - Not all enumerables supported. Allowed only arrays of any number of dimensions supported by CLR and types from System.Collections.Generic that implement generic ICollection interface;
 - Inheritance supported partially. If you have a prop of type X and assign to that prop a value of type Y and Y is a subclass of X, then only props of type X will be serialized/deserialized, those of type Y which are not in X will be ignored;</Description>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
-    <Version>3.0.0</Version>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <FileVersion>3.1.0.0</FileVersion>
+    <Version>3.1.0</Version>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageReleaseNotes>1. Enriched XML documentation
-2. Better API(enhanced security)</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated license and logo 
+Small performance improvement</PackageReleaseNotes>
     <PackageIcon>Logo.png</PackageIcon>
     <PackageIconUrl />
   </PropertyGroup>
